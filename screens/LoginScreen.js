@@ -39,6 +39,7 @@ export default function LoginScreen() {
 
   const handleLoginPress = () => {
     console.log('Login button pressed');
+    navigation.navigate('Dashboard'); // Navigate to the Dashboard
   };
 
   return (
