@@ -39,7 +39,7 @@ export default function LoginScreen() {
 
   const handleLoginPress = () => {
     console.log('Login button pressed');
-    navigation.navigate('Dashboard'); // Navigate to the Dashboard
+    navigation.navigate('GetStarted'); // Navigate to the Dashboard
   };
 
   return (
@@ -181,6 +181,7 @@ const styles = StyleSheet.create({
     color: 'blue',
     textDecorationLine: 'underline',
     fontSize: 13,
+    bottom: -20,
   },
   signInText: {
     fontFamily: 'CherryBombOne-Regular', // Inherits the same font

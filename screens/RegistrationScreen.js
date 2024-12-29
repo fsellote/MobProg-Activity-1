@@ -10,6 +10,7 @@ export default function RegistrationScreen() {
 
   const handleSignupPress = () => {
     console.log('Sign Up button pressed');
+    navigation.navigate('GetStarted'); 
   };
 
   return (
