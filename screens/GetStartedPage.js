@@ -3,7 +3,12 @@ import { StyleSheet, View, ImageBackground, TouchableOpacity, Text } from 'react
 import { useNavigation } from '@react-navigation/native';
 
 export default function GetStartedScreen() {
+<<<<<<< HEAD
   const navigation = useNavigation(); 
+=======
+  const navigation = useNavigation(); // Initialize navigation
+
+>>>>>>> 983a189df1140bd597fe79db1d5158871c2af8f8
   return (
     <ImageBackground
       source={require('../assets/getstartimg.png')}
@@ -41,4 +46,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> 983a189df1140bd597fe79db1d5158871c2af8f8

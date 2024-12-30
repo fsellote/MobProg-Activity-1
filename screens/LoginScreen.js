@@ -45,6 +45,7 @@ export default function LoginScreen() {
     return null;
   }
 
+<<<<<<< HEAD
   const handleLoginPress = async () => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -61,6 +62,11 @@ export default function LoginScreen() {
       console.error('Login error:', error.message);
       alert('Login failed: ' + error.message);
     }
+=======
+  const handleLoginPress = () => {
+    console.log('Login button pressed');
+    navigation.navigate('GetStarted'); // Navigate to the Dashboard
+>>>>>>> 983a189df1140bd597fe79db1d5158871c2af8f8
   };
 
   return (
@@ -224,6 +230,7 @@ const styles = StyleSheet.create({
     color: 'blue',
     textDecorationLine: 'underline',
     fontSize: 13,
+    bottom: -20,
   },
   signInText: {
     fontFamily: 'CherryBombOne-Regular',

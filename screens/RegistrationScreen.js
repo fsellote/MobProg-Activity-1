@@ -15,6 +15,7 @@ export default function RegistrationScreen() {
   const [isChecked, setIsChecked] = useState(false);
   const navigation = useNavigation();
 
+<<<<<<< HEAD
   const handleSignupPress = async () => {
     if (password !== confirmPassword) {
       alert('Passwords do not match!');
@@ -42,6 +43,11 @@ export default function RegistrationScreen() {
       console.error('Registration error:', error.message);
       alert('Registration failed: ' + error.message);
     }
+=======
+  const handleSignupPress = () => {
+    console.log('Sign Up button pressed');
+    navigation.navigate('GetStarted'); 
+>>>>>>> 983a189df1140bd597fe79db1d5158871c2af8f8
   };
 
   return (
