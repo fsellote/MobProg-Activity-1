@@ -1,15 +1,47 @@
 import { Image, StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
-import { useFonts } from 'expo-font';
 import { CheckBox } from 'react-native-elements';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { useNavigation } from '@react-navigation/native';
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL = 'https://gbdrykkxplgankyrwnat.supabase.co'; 
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdiZHJ5a2t4cGxnYW5reXJ3bmF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU1NzIzNjgsImV4cCI6MjA1MTE0ODM2OH0.FsiVnpQs0oOHc6i6vwda4pwe-ZQC50hJTldJf-YD-TE'; // Replace with your Supabase anon key
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function RegistrationScreen() {
-  const [isChecked, setIsChecked] = useState(false); // State for checkbox
-  const navigation = useNavigation(); // Initialize navigation
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isChecked, setIsChecked] = useState(false);
+  const navigation = useNavigation();
 
-  const handleSignupPress = () => {
-    console.log('Sign Up button pressed');
+  const handleSignupPress = async () => {
+    if (password !== confirmPassword) {
+      alert('Passwords do not match!');
+      return;
+    }
+
+    if (!isChecked) {
+      alert('Please agree to the Terms of Use');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: null, 
+        },
+      });
+
+      if (error) throw error;
+      alert('Registration successful! You can now log in.');
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error('Registration error:', error.message);
+      alert('Registration failed: ' + error.message);
+    }
   };
 
   return (
@@ -17,25 +49,43 @@ export default function RegistrationScreen() {
       <Text style={styles.title}>Register{'\n'}Now!</Text>
 
       <View style={styles.innerContainer}>
-        {/* Arrow for going back to Log In */}
         <TouchableOpacity style={styles.goBackArrow} onPress={() => navigation.navigate('Login')}>
-          {/* Simple text-based arrow, you can replace it with an image or an icon */}
-          <Text style={styles.arrowLabel}> {'<'} Go back to Log In</Text>
+          <Text style={styles.arrowLabel}>{'<'} Go back to Log In</Text>
         </TouchableOpacity>
+
+        <View style={styles.toolbarContainer}>
+          <Image source={require('../assets/toolbar.png')} style={styles.toolbarImage} />
+        </View>
 
         <Image source={require('../assets/logo.png')} style={styles.logoImage} />
         <View style={styles.emailContainer}>
-        <Text style={styles.signUpText}>Sign Up</Text>
-          <TextInput style={styles.emailTextInput} placeholder="Enter email or username" />
+          <Text style={styles.signUpText}>Sign Up</Text>
+          <TextInput
+            style={styles.emailTextInput}
+            placeholder="Enter email or username"
+            value={email}
+            onChangeText={setEmail}
+          />
         </View>
         <View style={styles.passwordContainer}>
-          <TextInput style={styles.passwordTextInput} placeholder="Password" />
+          <TextInput
+            style={styles.passwordTextInput}
+            placeholder="Password"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
         </View>
         <View style={styles.confirmPasswordContainer}>
-          <TextInput style={styles.confirmPasswordTextInput} placeholder="Confirm Password" />
+          <TextInput
+            style={styles.confirmPasswordTextInput}
+            placeholder="Confirm Password"
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
         </View>
 
-        {/* Checkbox for agreeing to the Terms of Use */}
         <CheckBox
           title="I agree to the Terms of Use"
           checked={isChecked}
@@ -44,7 +94,6 @@ export default function RegistrationScreen() {
           textStyle={styles.checkboxText}
         />
 
-        {/* Sign Up Button */}
         <TouchableOpacity
           style={[styles.signupButtonContainer, !isChecked && styles.disabledButton]}
           onPress={handleSignupPress}
@@ -55,11 +104,6 @@ export default function RegistrationScreen() {
 
         <Text style={styles.orText}>Or</Text>
       </View>
-
-      {/* Toolbar positioned at the bottom */}
-      <View style={styles.toolbarContainer}>
-        <Image source={require('../assets/toolbar.png')} style={styles.toolbarImage} />
-      </View>
     </View>
   );
 }
@@ -69,11 +113,11 @@ const styles = StyleSheet.create({
     fontSize: 60,
     color: '#333',
     fontFamily: 'CherryBombOne-Regular',
-    textAlign: 'center', // Center the text horizontally
+    textAlign: 'center',
     position: 'absolute',
     top: 43,
-    width: '100%', // Takes full width for centering
-    lineHeight: 80, // Adjust line height to properly space between lines
+    width: '100%',
+    lineHeight: 80,
   },
   container: {
     flex: 1,
@@ -84,7 +128,7 @@ const styles = StyleSheet.create({
   innerContainer: {
     backgroundColor: '#FFF7ED',
     width: 380,
-    height: 530,
+    height: 510,
     borderBottomEndRadius: 0,
     borderBottomStartRadius: 0,
     borderRadius: 80,
@@ -98,8 +142,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 20,
     left: 20,
-    flexDirection: 'row', // For horizontal layout
-    alignItems: 'center', // Vertically center content
+    flexDirection: 'row',
+    alignItems: 'center',
     bottom: 320,
   },
   arrowLabel: {
@@ -147,11 +191,11 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   toolbarContainer: {
-    position: 'absolute', // Fix it at the bottom
-    bottom: 0,
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 50,
+    flexDirection: 'row',
+    marginTop: 440,
+    marginBottom: 8,
+    justifyContent: 'space-between',
+    position: 'absolute',
   },
   toolbarImage: {
     width: 200,
@@ -181,22 +225,22 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   checkboxContainer: {
-    backgroundColor: 'transparent', // Removes the background color
-    borderWidth: 0, // Removes border for the container as well
+    backgroundColor: 'transparent',
+    borderWidth: 0,
     marginTop: 9,
     bottom: -12,
     left: -0,
   },
   checkboxText: {
     fontSize: 13,
-    color: '#000', // Optional: You can adjust text style here
+    color: '#000',
   },
   signUpText: {
-    fontFamily: 'CherryBombOne-Regular', // Inherits the same font
-    fontSize: 40, // Adjust size as needed
-    color: '#000', // Adjust color if needed
-    position: 'absolute', // Position it within the container
-    top: -60, // Adjust the vertical position
-    left: 0, // Align it to the left
+    fontFamily: 'CherryBombOne-Regular',
+    fontSize: 40,
+    color: '#000',
+    position: 'absolute',
+    top: -60,
+    left: 0,
   },
 });

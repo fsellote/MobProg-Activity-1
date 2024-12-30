@@ -2,11 +2,20 @@ import { Image, StyleSheet, Text, View, TextInput, TouchableOpacity } from 'reac
 import React, { useEffect, useState } from 'react';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { useNavigation } from '@react-navigation/native';
+import { createClient } from '@supabase/supabase-js';
+import { Ionicons } from '@expo/vector-icons'; 
+
+const SUPABASE_URL = 'https://gbdrykkxplgankyrwnat.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdiZHJ5a2t4cGxnYW5reXJ3bmF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU1NzIzNjgsImV4cCI6MjA1MTE0ODM2OH0.FsiVnpQs0oOHc6i6vwda4pwe-ZQC50hJTldJf-YD-TE';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function LoginScreen() {
   const [appIsReady, setAppIsReady] = useState(false);
-  const navigation = useNavigation(); // Initialize navigation
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false); 
+  const navigation = useNavigation();
 
   let [fontsLoaded] = useFonts({
     'CherryBombOne-Regular': require('../assets/fonts/CherryBombOne-Regular.ttf'),
@@ -23,7 +32,6 @@ export default function LoginScreen() {
         console.warn(e);
       }
     }
-
     prepare();
   }, [fontsLoaded]);
 
@@ -37,9 +45,22 @@ export default function LoginScreen() {
     return null;
   }
 
-  const handleLoginPress = () => {
-    console.log('Login button pressed');
-    navigation.navigate('Dashboard'); // Navigate to the Dashboard
+  const handleLoginPress = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      console.log('Login successful:', data);
+      alert('Login successful!');
+      navigation.navigate('GetStarted');
+    } catch (error) {
+      console.error('Login error:', error.message);
+      alert('Login failed: ' + error.message);
+    }
   };
 
   return (
@@ -50,25 +71,47 @@ export default function LoginScreen() {
         <View>
           <Image source={require('../assets/logo.png')} style={styles.logoImage} />
         </View>
+
         <View style={styles.emailContainer}>
-        <Text style={styles.signInText}>Sign in</Text>
-        <TextInput style={styles.emailTextInput} placeholder="Enter email or username" />
+          <Text style={styles.signInText}>Sign in</Text>
+          <TextInput
+            style={styles.emailTextInput}
+            placeholder="Enter email or username"
+            value={email}
+            onChangeText={setEmail}
+          />
         </View>
+
         <View style={styles.passwordContainer}>
-          <TextInput style={styles.passwordTextInput} placeholder="Password" />
+          <TextInput
+            style={styles.passwordTextInput}
+            placeholder="Password"
+            secureTextEntry={!isPasswordVisible}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity
+            style={styles.eyeIcon}
+            onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+          >
+            <Ionicons
+              name={isPasswordVisible ? 'eye-off' : 'eye'}
+              size={24}
+              color="gray"
+            />
+          </TouchableOpacity>
         </View>
+
         <View style={styles.toolbarContainer}>
           <Image source={require('../assets/toolbar.png')} style={styles.toolbarImage} />
         </View>
 
-        {/* Log In button in its own container */}
         <TouchableOpacity style={styles.loginButtonContainer} onPress={handleLoginPress}>
           <Text style={styles.loginButtonText}>Log In</Text>
         </TouchableOpacity>
 
         <Text style={styles.orText}>Or</Text>
 
-        {/* Registration link using absolute positioning */}
         <TouchableOpacity
           style={styles.registerLink}
           onPress={() => navigation.navigate('Registration')}
@@ -97,20 +140,19 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     backgroundColor: '#FFF7ED',
-    width: 380,
-    height: 530,
-    borderBottomEndRadius: 0,
-    borderBottomStartRadius: 0,
+    width: 385,
+    height: 580,
     borderRadius: 80,
     alignItems: 'center',
     justifyContent: 'flex-start',
     position: 'absolute',
-    bottom: 0,
+    bottom: -50,
     padding: 20,
   },
   logoImage: {
+    marginBottom: 10,
     bottom: 115,
-    left: 47,
+    left: 50,
     width: 190,
     height: 190,
     transform: [{ translateX: -45 }],
@@ -128,20 +170,23 @@ const styles = StyleSheet.create({
   },
   passwordContainer: {
     width: 290,
+    flexDirection: 'row',
+    alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     marginTop: 20,
   },
   passwordTextInput: {
+    flex: 1,
     fontSize: 15,
     fontWeight: 'bold',
     color: '#000',
   },
+  eyeIcon: {
+    marginLeft: 10,
+  },
   toolbarContainer: {
-    flexDirection: 'row',
-    marginTop: 410,
-    marginBottom: 8,
-    justifyContent: 'space-between',
+    marginTop: 420,
     position: 'absolute',
   },
   toolbarImage: {
@@ -169,13 +214,11 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   registerLink: {
-    position: 'absolute', 
-    bottom: 30, 
+    position: 'absolute',
+    bottom: 60,
     left: 214,
-    alignSelf: 'center',
-    zIndex: 10, 
+    zIndex: 10,
     marginBottom: 255,
-     
   },
   registerText: {
     color: 'blue',
@@ -183,12 +226,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   signInText: {
-    fontFamily: 'CherryBombOne-Regular', // Inherits the same font
-    fontSize: 40, // Adjust size as needed
-    color: '#000', // Adjust color if needed
-    position: 'absolute', // Position it within the container
-    top: -60, // Adjust the vertical position
-    left: 0, // Align it to the left
+    fontFamily: 'CherryBombOne-Regular',
+    fontSize: 40,
+    color: '#000',
+    position: 'absolute',
+    top: -60,
   },
   
 });
